@@ -59,7 +59,8 @@ def train_val(train_val_data, model, mode, bs, epochs, criterion, optimizer, ear
       # feed in the data and learn from error
       optimizer.zero_grad()
       model.train()
-      pos_prob, neg_prob = model.contrast(src_l_cut, tgt_l_cut, bad_l_cut, ts_l_cut, e_l_cut)   # the core training code
+    
+      pos_prob, neg_prob = model.contrast(src_l_cut, tgt_l_cut, bad_l_cut, ts_l_cut, e_l_cut,k=k)   # the core training code
       pos_label = torch.ones(size, dtype=torch.float, device=device, requires_grad=False)
       neg_label = torch.zeros(size, dtype=torch.float, device=device, requires_grad=False)
       loss = criterion(pos_prob, pos_label) + criterion(neg_prob, neg_label)

@@ -108,7 +108,7 @@ class NAT(torch.nn.Module):
   
   def position_bits(self, bs, hop):
     # return torch.zeros(bs * self.num_neighbors[hop], device=self.device) << hop
-    return torch.ones(bs * self.num_neighbors[hop], device=self.device) << hop
+    return torch.ones(bs * self.num_neighbors[hop], device=self.device, dtype=torch.int) << hop
 
   def contrast(self, src_l_cut, tgt_l_cut, bad_l_cut, cut_time_l, e_idx_l=None, test=False):
     start = time.time()
@@ -172,6 +172,8 @@ class NAT(torch.nn.Module):
     pos_raw = updated_mem[:, -1]
     src_pos_raw = pos_raw[0:src_nghs]
     # for the target nodes, shift all the bits by 3 to differentiate from the source nodes
+    # print("pos_raw", pos_raw)
+    pos_raw = pos_raw.int()
     tgt_pos_raw = pos_raw[src_nghs:src_nghs + tgt_nghs] << 3
     bad_pos_raw = pos_raw[src_nghs + tgt_nghs:] << 3
     pos_raw = torch.cat((src_pos_raw, tgt_pos_raw, bad_pos_raw), -1)

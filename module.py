@@ -69,6 +69,7 @@ class NAT(torch.nn.Module):
   def reset_store(self):
     ngh_stores = []
     for i in self.num_neighbors:
+      print("I", i)
       max_e_idx = self.total_nodes * i
       raw_store = torch.zeros(max_e_idx, self.num_raw)
       hidden_store = torch.empty(max_e_idx, self.ngh_dim)
@@ -110,7 +111,7 @@ class NAT(torch.nn.Module):
     # return torch.zeros(bs * self.num_neighbors[hop], device=self.device) << hop
     return torch.ones(bs * self.num_neighbors[hop], device=self.device, dtype=torch.int) << hop
 
-  def contrast(self, src_l_cut, tgt_l_cut, bad_l_cut, cut_time_l, e_idx_l=None, test=False):
+  def contrast(self, src_l_cut, tgt_l_cut, bad_l_cut, cut_time_l, e_idx_l=None, test=False, k=3):
     start = time.time()
     start_t = time.time()
     batch_size = len(src_l_cut)
@@ -205,7 +206,16 @@ class NAT(torch.nn.Module):
     tgt_self_rep = self.updated_self_rep(tgt_th)
     bad_self_rep = self.updated_self_rep(bad_th)
 
+    if k < 2:
+        print("features", features, features.shape)
+        print("ngh_and_batch_id_p", ngh_and_batch_id_p, ngh_and_batch_id_p.shape)
+        
     p_score, n_score, attn_score = self.forward(ngh_and_batch_id_p, ngh_and_batch_id_n, features, batch_size, src_self_rep, tgt_self_rep, bad_self_rep)
+
+    if k < 2:
+        print("P score", p_score, p_score.shape, p_score.sigmoid())
+        print("n_score", n_score, n_score.shape, n_score.sigmoid())
+        print("attn_score", attn_score)
     end = time.time()
     self.log_time('attention', start, end)
     
